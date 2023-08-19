@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Ensure dialog is installed
-command -v dialog >/dev/null 2>&1 || { echo >&2 "Dialog is required but not installed. Aborting."; exit 1; }
+# Check if dialog is installed and install it if not
+if ! command -v dialog >/dev/null 2>&1; then
+    echo "Dialog is not installed. Installing..."
+    sudo apt-get update
+    sudo apt-get install -y dialog
+fi
 
 # Get a list of available network interfaces
 interfaces=($(ip -o link show | awk -F': ' '!/^[0-9]+: lo/{print $2}'))
@@ -37,7 +41,7 @@ if [ "$dhcp_choice" = "Yes" ]; then
   renderer: networkd
   ethernets:
     $selected_interface:
-      dhcp6: true"
+      dhcp4: true"
     config_file="/etc/netplan/60-$selected_interface.yaml"
 else
     # Get the additional IP addresses
